@@ -6,7 +6,8 @@ yum update -y nss curl libcurl
 wget https://repo.continuum.io/miniconda/Miniconda2-latest-Linux-x86_64.sh
 chmod +x Miniconda2-latest-Linux-x86_64.sh
 ./Miniconda2-latest-Linux-x86_64.sh -b
-source ~/.bashrc
+export PATH="/root/miniconda2/bin:$PATH"
+
 conda install zlib=1.2.11 numpy=1.14.3 scipy=1.1.0 -y
 conda install pytorch=0.3.1 torchvision=0.2.0 cuda80=1.0 -c pytorch -y
 conda install cmake=3.12.1 -c conda-forge -y
