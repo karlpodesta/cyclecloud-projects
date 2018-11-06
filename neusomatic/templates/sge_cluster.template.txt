@@ -107,7 +107,7 @@ Order = 10
         Label = Master VM Type
         Description = The VM type for scheduler master and shared filer.
         ParameterType = Cloud.MachineType
-        DefaultValue = Standard_DS12_v2
+        DefaultValue = Standard_DS14-4_v2
 
         [[[parameter ExecuteMachineType]]]
         Label = Execute VM Type
