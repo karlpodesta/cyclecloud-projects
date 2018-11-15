@@ -202,7 +202,7 @@ Order = 20
 
         [[[parameter UsePublicNetwork]]]
         Label = Public Head Node
-        DefaultValue = true
+        DefaultValue = false
         ParameterType = Boolean
         Config.Label = Access master node from the Internet
 

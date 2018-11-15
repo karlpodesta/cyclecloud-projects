@@ -7,6 +7,7 @@ wget https://repo.continuum.io/miniconda/Miniconda2-latest-Linux-x86_64.sh
 chmod +x Miniconda2-latest-Linux-x86_64.sh
 ./Miniconda2-latest-Linux-x86_64.sh -b
 export PATH="/root/miniconda2/bin:$PATH"
+cp -rp /root/miniconda2 /mnt/exports/shared/miniconda2
 
 conda install zlib=1.2.11 numpy=1.14.3 scipy=1.1.0 -y
 conda install pytorch=0.3.1 torchvision=0.2.0 cuda80=1.0 -c pytorch -y
@@ -28,6 +29,10 @@ yum install -y libunwind icu
 wget -O azcopy.tar.gz https://aka.ms/downloadazcopylinux64 
 tar -xf azcopy.tar.gz
 ./install.sh
+
+## Settings for all users
+chmod -R 777 /mnt/exports/shared
+echo "export PATH=/mnt/exports/shared/miniconda2:$PATH" >> /etc/bashrc
 
 ## Start docker
 systemctl start docker
