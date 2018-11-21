@@ -31,7 +31,7 @@ tar -xf azcopy.tar.gz
 ./install.sh
 
 ## Settings for all users
-chmod -R 777 /mnt/exports/shared
+#chmod -R 777 /mnt/exports/shared
 #echo "export PATH=/mnt/exports/shared/miniconda2:$PATH" >> /etc/bashrc
 
 ## Start docker
