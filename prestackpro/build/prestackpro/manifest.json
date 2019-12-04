@@ -1,0 +1,15 @@
+{
+    "blobs": [
+        {
+            "checksum": "5494ef2b28d04a7df3da86aa9855b681", 
+            "path": "PreStackPRO-5.4.6-1.x86_64.rpm"
+        }, 
+        {
+            "checksum": "01492e64d42b6c2302d94779ffdfd6f9", 
+            "path": "PreStackPROClient-5.4.6-1.x86_64.rpm"
+        }
+    ], 
+    "name": "prestackpro", 
+    "type": "application", 
+    "version": "1.0.0"
+}
