@@ -6,7 +6,7 @@
 [cluster prestackpro]
 FormLayout = selectionpanel
 Category = Applications
-
+IconUrl = https://raw.githubusercontent.com/karlpodesta/cyclecloud-projects/master/prestackpro/icon.png
 Autoscale = $Autoscale
 
     [[node defaults]]
@@ -14,24 +14,35 @@ Autoscale = $Autoscale
     Credentials = $Credentials    
     ImageName = $ImageName
     SubnetId = $SubnetId
-    Region = $Region
     KeyPairLocation = ~/.ssh/cyclecloud.pem
-    
+
+        [[[cluster-init beegfs:default:1.4.1]]]
+        [[[cluster-init beegfs:client:1.4.1]]]
+	[[[cluster-init lfs:client]]] 
         [[[cluster-init prestackpro:default:1.0.0]]]
         Optional = True
 
         [[[configuration]]]
 	cyclecloud.selinux.policy = permissive        
+        beegfs.client.cluster_name = $BeeGFSClusterName
+        beegfs.client.mount_point = $BeeGFSMountPt
+	lustre.cluster_name = $LustreClusterName
+	lustre.version = $LustreVersion
+	lustre.mount_point = $LustreMountPoint
 
     [[node master]]
     MachineType = $MasterMachineType
     IsReturnProxy = $ReturnProxy
     AdditionalClusterInitSpecs = $MasterClusterInitSpecs
-    
+    ImageName = /subscriptions/104005bf-fc75-4414-a6ae-901e19c14cda/resourceGroups/graphics/providers/Microsoft.Compute/images/centos76-hpc-nv-image
+ 
         [[[configuration]]]
 
         [[[cluster-init cyclecloud/pbspro:master]]]
-
+        [[[cluster-init beegfs:default:1.4.1]]]
+        [[[cluster-init beegfs:client:1.4.1]]]
+        [[[cluster-init lfs:client]]]
+        [[[cluster-init prestackpro:default:1.0.0]]]
         [[[cluster-init prestackpro:master:1.0.0]]]
         Optional = True
 
@@ -54,10 +65,12 @@ Autoscale = $Autoscale
         [[[configuration]]]
 
         [[[cluster-init cyclecloud/pbspro:execute]]]
-
+        [[[cluster-init beegfs:default:1.4.1]]]
+        [[[cluster-init beegfs:client:1.4.1]]]
+        [[[cluster-init lfs:client]]]  
+        [[[cluster-init prestackpro:default:1.0.0]]]
         [[[cluster-init prestackpro:execute:1.0.0]]]
         Optional = True
-
 
         [[[network-interface eth0]]]
         AssociatePublicIpAddress = $ExecuteNodesPublic
@@ -71,13 +84,13 @@ Order = 1
         [[[parameter prestackpro]]]
         HideLabel = true
         Config.Plugin = pico.widget.HtmlTemplateWidget
-        Config.Template = "<table><tr><td><img src='https://sharpreflections.com/wp-content/uploads/2019/03/Sharp-logo.png' width='137' height='87'></td></tr><tr><td><p>Pre-Stack Pro is pre-stack seismic analysis software that combines pre-stack visualization, processing, and interpretation in one powerful platform. By having it on your desktop, you can QC data, improve data quality, and generate the exact stacks and attributes needed to target promising anomalies. <a href=\"https://sharpreflections.com/\" target=\"_blank\">Sharp Reflections Website</a> for an overview.</p></td></tr></table>"
+        Config.Template = "<table><tr><td><img src='https://sharpreflections.com/wp-content/uploads/2019/03/Sharp-logo.png' width='574' height='141'></td></tr><tr><td><p>Pre-Stack Pro is pre-stack seismic analysis software that combines pre-stack visualization, processing, and interpretation in one powerful platform. By having it on your desktop, you can QC data, improve data quality, and generate the exact stacks and attributes needed to target promising anomalies. <a href=\"https://sharpreflections.com/\" target=\"_blank\">Sharp Reflections Website</a> for an overview.</p></td></tr></table>"
 
 [parameters Required Settings]
 Order = 10
 
     [[parameters Virtual Machines ]]
-    Description = "The cluster, in this case, has two roles: the scheduler master-node with shared filer and the execute hosts. Configure which VM types to use based on the requirements of your application."
+    Description = "Please choose a region and an instance type for your head node (master) and your compute nodes."
     Order = 20
 
         [[[parameter Region]]]
@@ -88,16 +101,65 @@ Order = 10
 
         [[[parameter MasterMachineType]]]
         Label = Master VM Type
-        Description = The VM type for scheduler master and shared filer.
+        Description = The VM type for your master node (e.g. graphical head node)
         ParameterType = Cloud.MachineType
-        DefaultValue = Standard_D12_v2
+        DefaultValue = Standard_NV6
 
         [[[parameter ExecuteMachineType]]]
         Label = Execute VM Type
-        Description = The VM type for execute nodes
+        Description = The VM type for execute/compute nodes
         ParameterType = Cloud.MachineType
-        DefaultValue = Standard_F2s_v2
+        DefaultValue = Standard_HC44rs
         Config.Multiselect = false
+
+    [[parameters BeegFS Settings]]        
+    Order = 25
+    Description = "Use a BeeGFS cluster as storage. Settings for defining the BeeGFS cluster"
+
+        [[[parameter BeeGFSClusterName]]]
+        Label = BeeGFS Cluster
+        Description = Name of the BeeGFS cluster to connect to. The BeeGFS cluster should be orchestrated by the same CycleCloud Server
+        Required = True
+        Config.Plugin = pico.form.QueryDropdown
+        Config.Query = select ClusterName as Name from Cloud.Node where Cluster().IsTemplate =!= True && ClusterInitSpecs["beegfs:manager"] isnt undefined
+       Config.SetDefault = false
+
+        [[[parameter BeeGFSMountPt]]]
+        Label = BeeGFS MountPt
+        Description = The mount point to mount the BeeGFS file server on.
+        DefaultValue = /mnt/beegfs
+        Required = True
+
+[parameters Lustre Settings]
+Order = 25
+Description = "Use a Lustre cluster as a NAS. Settings for defining the Lustre cluster"
+
+    [[parameter LustreClusterName]]
+    Label = Lustre Cluster
+    Description = Name of the Lustre cluster to connect to. This cluster should be orchestrated by the same CycleCloud Server
+    Required = True
+    Config.Plugin = pico.form.QueryDropdown
+    Config.Query = select ClusterName as Name from Cloud.Node where Cluster().IsTemplate =!= True && ClusterInitSpecs["lfs:default"] isnt undefined
+    Config.SetDefault = false
+
+    [[parameter LustreVersion]]
+    Label = Lustre Version
+    Description = The Lustre version to use
+    DefaultValue = "2.10"
+    Config.FreeForm = false
+    Config.Plugin = pico.control.AutoCompleteDropdown
+        [[[list Config.Entries]]]
+        Name = "2.10"
+        Label = "2.10"
+        [[[list Config.Entries]]]
+        Name = "2.12"
+        Label = "2.12"
+    
+    [[parameter LustreMountPoint]]
+    Label = Lustre Mount Point
+    Description = The mount point to mount the Lustre file server on.
+    DefaultValue = /lustre
+    Required = True
 
 
     [[parameters Auto-Scaling]]
@@ -113,7 +175,7 @@ Order = 10
         [[[parameter MaxExecuteCoreCount]]]
         Label = Max Cores
         Description = The total number of execute cores to start
-        DefaultValue = 100
+        DefaultValue = 704
         Config.Plugin = pico.form.NumberTextBox
         Config.MinValue = 1
         Config.IntegerOnly = true
