@@ -28,6 +28,8 @@ The default configuration is as follows:
 * NV6 (Visualisation Head Node)
 * HC44rs (Compute Nodes - utilising Infiniband networking)
 
+![default-configuration](prestackpro-cycle-arch.png)
+
 # Use
 
 Once the cluster has successfully deployed, you can log in to the master node via SSH or VNC (remote graphical desktop).  You may wish to first log on via SSH (i.e. SSH key) to set a password for yourself.  Then you can use this password in combination with your username to log in to VNC (graphical desktop).
